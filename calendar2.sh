@@ -25,7 +25,7 @@ cal 6 2018 > ~/calendar/2018/june/days.txt
 
 
 #number of days, weeks, bussiness days
-#I used cut because using only wc shows on the screen the path
+
 echo "Number of days in January:"
 tail -n +3 ~/calendar/2018/january/days.txt | wc -w
 
