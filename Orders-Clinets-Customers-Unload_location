@@ -1,0 +1,9 @@
+select orders.id as order_id, orders.value as order_value, clients.name as client_name, customers.name as customer_name, orders.order_date, unload_locations.date as unload_date
+from orders
+inner join clients on orders.client_id=clients.id
+inner join customers on orders.customer_id=customers.id
+inner join unload_locations on unload_locations.order_id=orders.id where unload_locations.date > '2018-05-10'
+order by unload_date asc;
+
+
+https://asciinema.org/a/Kk3LGDryIKHH7kQnovUC5qPoD
