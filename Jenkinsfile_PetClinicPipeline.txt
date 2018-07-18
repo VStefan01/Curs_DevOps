@@ -1,0 +1,30 @@
+pipeline {
+    agent { label 'linux2' }
+    
+    stages {
+         //checkout repository
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/spring-projects/spring-petclinic.git'
+            }
+        }
+    
+        stage('Build') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+    
+        stage('Test') {
+            steps {
+               sh 'mvn test' 
+            }
+        }
+    
+        stage('Package') {
+            steps {
+               sh 'mvn package' 
+            }
+        }
+    }
+}

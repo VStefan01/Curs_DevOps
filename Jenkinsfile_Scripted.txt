@@ -1,0 +1,39 @@
+node('linux1') {
+    //connect to repository
+    stage('Checkout') {
+        checkout([$class: 'GitSCM', branches: [[name: '*/master']], 
+        doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], 
+        userRemoteConfigs: [[credentialsId: 'pass1', url: 'https://bitbucket.org/dmadevelopment/wms.git']]])
+    }
+    
+    stage('Build') {
+        sh 'mvn clean compile'
+    }
+    
+    stage('Test') {
+        sh 'mvn test'
+    }
+    
+    //package and archive artifacts
+    stage('Package') {
+        sh 'mvn package'
+        archiveArtifacts '**/target/*.jar'
+        fingerprint '**/target/*.jar'
+        echo "${currentBuild.currentResult}"
+    }
+  
+    //sending email, start job PetClinic
+    stage('Post-build') {
+        if (currentBuild.currentResult == 'SUCCESS') {
+            mail body: "Everything is OK with ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} (${env.BUILD_URL})", 
+                 subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - ${currentBuild.currentResult}", 
+                 to: 'vstefan02@gmail.com'
+            build 'PetClinicPipeline'
+        }
+        if (currentBuild.currentResult == 'FAILURE') {
+            mail body: "Check ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} (${env.BUILD_URL})", 
+                 subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - ${currentBuild.currentResult}", 
+                 to: 'vstefan02@gmail.com'
+        }
+    }
+}

@@ -1,0 +1,51 @@
+pipeline {
+    agent { label 'linux1' }
+    
+    stages {
+        
+        stage('Checkout') {
+            steps {
+                script {
+                    checkout([$class: 'GitSCM', branches: [[name: '*/master']], 
+                    doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], 
+                    userRemoteConfigs: [[credentialsId: 'pass1', url: 'https://bitbucket.org/dmadevelopment/wms.git']]])
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        
+        stage('Package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+    }
+    
+    post {
+        success {
+            mail to:"vstefan02@gmail.com",
+                 subject:"Build \"${currentBuild.fullDisplayName}\" has status ${currentBuild.currentResult}",
+                 body:"Build ${currentBuild.fullDisplayName} is OK."
+            
+            build 'PetClinicPipeline'
+               
+            }
+            
+        failure {
+            mail to:"vstefan02@gmail.com",
+                 subject:"Build ${currentBuild.fullDisplayName} has status ${currentBuild.currentResult}",
+                 body:"Something went wrong with ${currentBuild.fullDisplayName}, please check it at ${env.BUILD_URL}"
+        }
+    }
+}
