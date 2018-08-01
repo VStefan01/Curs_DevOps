@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  nginx:
+    build:
+       context: .
+       dockerfile: Dockerfile-nginx
+    image: wms/nginx
+    container_name: nginx
+    depends_on: 
+      - app
+    ports:
+      - "80:443"
+      - "443:443"
+    networks:
+      - private
+    restart: always
+#   volumes:
+#      - ./nginx/conf:/etc/nginx/conf.d
+#      - ./nginx/cert:/etc/nginx
+  
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    volumes:
+      - ./DATA:/var/lib/mysql
+#      - ./wms.sql:/docker-entrypoint-initdb.d/wms.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: wms     
+    networks:
+      - private
+
+  app:
+    image: wms/app:latest
+    container_name: app
+    depends_on: 
+      - mysql
+    restart: always
+    environment:
+#      - DATABASE_HOST=mysql
+#      - DATABASE_PORT=3306
+       APP_DB_HOST: mysql:3306
+    volumes:
+      - ./LOG:/var/log
+    networks:
+      - private
+
+networks:
+    private:
+      driver: bridge
