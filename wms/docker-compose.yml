@@ -20,14 +20,19 @@ services:
 #      - ./nginx/cert:/etc/nginx
   
   mysql:
-    image: mysql:8
+    build:
+       context: .
+       dockerfile: Dockerfile-data
+    image: wms/data
     container_name: mysql
     volumes:
       - ./DATA:/var/lib/mysql
 #      - ./wms.sql:/docker-entrypoint-initdb.d/wms.sql
     environment:
       MYSQL_ROOT_PASSWORD: admin
-      MYSQL_DATABASE: wms     
+      MYSQL_DATABASE: wms
+      MYSQL_USER: stefan
+      MYSQL_PASSWORD: passwd
     networks:
       - private
 
@@ -37,10 +42,10 @@ services:
     depends_on: 
       - mysql
     restart: always
-    environment:
-#      - DATABASE_HOST=mysql
-#      - DATABASE_PORT=3306
-       APP_DB_HOST: mysql:3306
+#    environment:
+#       APP_DB_HOST: mysql
+#       APP_DB_USER: stefan
+#       APP_DB_PASSWORD: passwd
     volumes:
       - ./LOG:/var/log
     networks:

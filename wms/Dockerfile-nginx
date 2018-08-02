@@ -3,6 +3,7 @@ FROM nginx:alpine
 RUN rm /etc/nginx/conf.d/*.conf
 RUN apk add --no-cache openssl && cd /etc/nginx && \
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout cert.key -out cert.crt -subj "/C=RO/ST=BH/L=Oradea/O=Global/OU=IT Department/CN=example"
+
 COPY ./default.conf /etc/nginx/conf.d
 
 CMD ["nginx", "-g", "daemon off;"]
